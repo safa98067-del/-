@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompassFocus - واجهة احترافية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-white: #f8fafc;
+            --text-gray: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .session-type {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .session-type.break {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+
+        /* دائرة التركيز */
+        .timer-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .timer-ring {
+            width: 100%;
+            height: 100%;
+            border: 6px solid rgba(255, 255, 255, 0.1);
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            animation: spin 3s linear infinite;
+        }
+
+        .timer-ring.paused {
+            animation: none;
+        }
+
+        .timer-text {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            z-index: 1;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* التحكم */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        select:hover, button:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f8fafc' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            grid-column: 1 / -1;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        button.start-btn {
+            background: linear-gradient(135deg, var(--primary-color), #818cf8);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        button.pause-btn {
+            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+            display: none;
+        }
+
+        button.reset-btn {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        button.stop-btn {
+            background: var(--danger-color);
+            display: none;
+        }
+
+        /* الإحصائيات */
+        .stats {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-item.success .stat-value {
+            color: var(--success-color);
+        }
+
+        /* تنبيهات */
+        .alert {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        /* قائمة الأوقات */
+        .time-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .time-preset {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-gray);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .time-preset:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .time-preset.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* تنبيهات النهاية */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .timer-text.warning {
+            animation: pulse 1s infinite;
+            color: var(--danger-color);
+        }
+
+        .timer-ring.warning {
+            border-top-color: var(--danger-color);
+        }
+
+        /* شاشة نهاية الجلسة */
+        .session-complete {
+            display: none;
+            text-align: center;
+        }
+
+        .session-complete.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .complete-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .complete-message {
+            font-size: 20px;
+            color: var(--success-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .complete-text {
+            color: var(--text-gray);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* عام */
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .timer-text {
+                font-size: 40px;
+            }
+
+            .timer-container {
+                width: 180px;
+                height: 180px;
+                margin-bottom: 25px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🧭 CompassFocus</h1>
+        <p class="subtitle">التركيز الذكي باستخدام تقنيات بومودورو</p>
+        <span class="session-type" id="sessionType">جلسة عمل</span>
+    </div>
+
+    <div class="alert" id="alert">
+        <span id="alertMessage"></span>
+    </div>
+
+    <div class="timer-container">
+        <div class="timer-ring" id="timerRing"></div>
+        <div class="timer-text" id="timerText">25:00</div>
+    </div>
+
+    <div class="time-presets">
+        <button class="time-preset active" data-minutes="25">25 دقيقة</button>
+        <button class="time-preset" data-minutes="15">15 دقيقة</button>
+        <button class="time-preset" data-minutes="5">5 دقائق</button>
+        <button class="time-preset" data-minutes="45">45 دقيقة</button>
+        <button class="time-preset" data-minutes="10">استراحة</button>
+        <button class="time-preset" data-minutes="30">30 دقيقة</button>
+    </div>
+
+    <div class="controls">
+        <select id="soundSelect">
+            <option value="none">🔇 بدون صوت</option>
+            <option value="notification">🔔 إشعار</option>
+            <option value="chime">🎵 رنة لطيفة</option>
+            <option value="bell">🔊 جرس</option>
+        </select>
+        <button class="start-btn" id="startBtn">▶️ ابدأ الجلسة</button>
+        <button class="pause-btn" id="pauseBtn">⏸️ إيقاف مؤقت</button>
+        <button class="stop-btn" id="stopBtn">⏹️ إيقاف</button>
+    </div>
+
+    <div class="button-group">
+        <button class="reset-btn" id="resetBtn">↻ إعادة تعيين</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-label">⭐ الجلسات المكتملة</div>
+            <div class="stat-value" id="completedSessions">0</div>
+        </div>
+        <div class="stat-item success">
+            <div class="stat-label">🏆 إجمالي الوقت</div>
+            <div class="stat-value" id="totalTime">0د</div>
+        </div>
+    </div>
+
+    <div class="session-complete" id="sessionComplete">
+        <div class="complete-icon" id="completeIcon">🎉</div>
+        <div class="complete-message">تم إنهاء الجلسة!</div>
+        <div class="complete-text" id="completeText">لقد أكملت جلسة عمل ناجحة</div>
+    </div>
+</div>
+
+<script>
+    class PomodoroTimer {
+        constructor() {
+            // DOM Elements
+            this.timerText = document.getElementById('timerText');
+            this.timerRing = document.getElementById('timerRing');
+            this.startBtn = document.getElementById('startBtn');
+            this.pauseBtn = document.getElementById('pauseBtn');
+            this.stopBtn = document.getElementById('stopBtn');
+            this.resetBtn = document.getElementById('resetBtn');
+            this.soundSelect = document.getElementById('soundSelect');
+            this.alert = document.getElementById('alert');
+            this.alertMessage = document.getElementById('alertMessage');
+            this.sessionType = document.getElementById('sessionType');
+            this.sessionComplete = document.getElementById('sessionComplete');
+            this.completeIcon = document.getElementById('completeIcon');
+            this.completeText = document.getElementById('completeText');
+            this.completedSessionsEl = document.getElementById('completedSessions');
+            this.totalTimeEl = document.getElementById('totalTime');
+
+            // State
+            this.duration = 25 * 60; // 25 دقيقة بالثواني
+            this.timeLeft = this.duration;
+            this.isRunning = false;
+            this.isPaused = false;
+            this.intervalId = null;
+            this.isBreakTime = false;
+            this.completedSessions = 0;
+            this.totalTime = 0;
+
+            // Load from localStorage
+            this.loadStats();
+
+            // Event listeners
+            this.startBtn.addEventListener('click', () => this.start());
+            this.pauseBtn.addEventListener('click', () => this.pause());
+            this.stopBtn.addEventListener('click', () => this.stop());
+            this.resetBtn.addEventListener('click', () => this.reset());
+
+            // Time presets
+            document.querySelectorAll('.time-preset').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.time-preset').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const minutes = parseInt(e.target.dataset.minutes);
+                    this.setDuration(minutes);
+                });
+            });
+
+            this.updateDisplay();
+            this.updateStats();
+        }
+
+        setDuration(minutes) {
+            if (!this.isRunning) {
+                this.duration = minutes * 60;
+                this.timeLeft = this.duration;
+                this.isBreakTime = minutes <= 15 && minutes >= 5;
+                this.updateDisplay();
+            }
+        }
+
+        start() {
+            if (this.isRunning) return;
+
+            this.isRunning = true;
+            this.isPaused = false;
+            this.startBtn.style.display = 'none';
+            this.pauseBtn.style.display = 'block';
+            this.stopBtn.style.display = 'block';
+            this.timerRing.classList.remove('paused');
+
+            this.intervalId = setInterval(() => {
+                this.timeLeft--;
+
+                if (this.timeLeft <= 0) {
+                    this.complete();
+                } else if (this.timeLeft === 60) {
+                    this.showAlert('دقيقة واحدة متبقية!');
+                    this.playSound('notification');
+                } else if (this.timeLeft <= 10 && this.timeLeft > 0) {
+                    this.timerText.classList.add('warning');
+                    this.timerRing.classList.add('warning');
+                }
+
+                this.updateDisplay();
+            }, 1000);
+        }
+
+        pause() {
+            if (!this.isRunning) return;
+
+            this.isRunning = false;
+            this.isPaused = true;
+            clearInterval(this.intervalId);
+            this.pauseBtn.style.display = 'none';
+            this.startBtn.style.display = 'block';
+            this.timerRing.classList.add('paused');
+            this.showAlert('تم إيقاف الجلسة مؤقتاً');
+        }
+
+        stop() {
+            this.isRunning = false;
+            this.isPaused = false;
+            clearInterval(this.intervalId);
+            this.reset();
+            this.showAlert('تم إيقاف الجلسة');
+        }
+
+        reset() {
+            this.isRunning = false;
+            this.isPaused = false;
+            clearInterval(this.intervalId);
+            this.timeLeft = this.duration;
+            this.timerText.classList.remove('warning');
+            this.timerRing.classList.remove('warning', 'paused');
+            this.startBtn.style.display = 'block';
+            this.pauseBtn.style.display = 'none';
+            this.stopBtn.style.display = 'none';
+            this.sessionComplete.classList.remove('show');
+            this.updateDisplay();
+        }
+
+        complete() {
+            this.isRunning = false;
+            clearInterval(this.intervalId);
+            this.playSound(this.soundSelect.value);
+
+            this.completedSessions++;
+            this.totalTime += this.duration / 60;
+            this.saveStats();
+
+            this.timerText.classList.remove('warning');
+            this.timerRing.classList.remove('warning');
+
+            // Show completion message
+            this.sessionComplete.classList.add('show');
+            this.completeIcon.textContent = this.isBreakTime ? '😌' : '🎉';
+            const message = this.isBreakTime ? 'انتهت فترة الاستراحة' : 'تم إكمال جلسة العمل!';
+            this.completeText.textContent = message;
+
+            this.startBtn.style.display = 'block';
+            this.pauseBtn.style.display = 'none';
+            this.stopBtn.style.display = 'none';
+
+            this.showAlert('جيد جداً! 🌟');
+            this.updateStats();
+
+            // Auto switch to break time
+            setTimeout(() => {
+                if (!this.isBreakTime) {
+                    this.setDuration(5);
+                    document.querySelectorAll('.time-preset')[4].classList.add('active');
+                } else {
+                    this.setDuration(25);
+                    document.querySelectorAll('.time-preset')[0].classList.add('active');
+                }
+            }, 3000);
+        }
+
+        updateDisplay() {
+            const minutes = Math.floor(this.timeLeft / 60);
+            const seconds = this.timeLeft % 60;
+            this.timerText.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Update session type
+            if (this.isBreakTime) {
+                this.sessionType.textContent = 'استراحة';
+                this.sessionType.classList.add('break');
+            } else {
+                this.sessionType.textContent = 'جلسة عمل';
+                this.sessionType.classList.remove('break');
+            }
+        }
+
+        updateStats() {
+            this.completedSessionsEl.textContent = this.completedSessions;
+            this.totalTimeEl.textContent = `${Math.round(this.totalTime)}د`;
+        }
+
+        showAlert(message) {
+            this.alertMessage.textContent = message;
+            this.alert.classList.add('show');
+            setTimeout(() => {
+                this.alert.classList.remove('show');
+            }, 3000);
+        }
+
+        playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            switch (type) {
+                case 'notification':
+                    this.playTone(audioContext, 800, 0.1);
+                    setTimeout(() => this.playTone(audioContext, 1000, 0.1), 150);
+                    break;
+                case 'chime':
+                    this.playTone(audioContext, 523, 0.2);
+                    setTimeout(() => this.playTone(audioContext, 659, 0.2), 200);
+                    break;
+                case 'bell':
+                    this.playTone(audioContext, 1046, 0.3);
+                    break;
+            }
+        }
+
+        playTone(audioContext, frequency, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        saveStats() {
+            localStorage.setItem('pomodoroStats', JSON.stringify({
+                completedSessions: this.completedSessions,
+                totalTime: this.totalTime
+            }));
+        }
+
+        loadStats() {
+            const saved = localStorage.getItem('pomodoroStats');
+            if (saved) {
+                const data = JSON.parse(saved);
+                this.completedSessions = data.completedSessions || 0;
+                this.totalTime = data.totalTime || 0;
+            }
+        }
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        new PomodoroTimer();
+    });
+</script>
+
+</body>
+</html>
