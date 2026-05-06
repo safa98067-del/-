@@ -7,14 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #6366f1;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --bg-dark: #0f172a;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-white: #f8fafc;
-            --text-gray: #94a3b8;
+            --main-color: #008080;
+            --bg-color: #f5f5f5;
+            --primary-color: #008080;
+            --success-color: #006666;
+            --warning-color: #009999;
+            --danger-color: #004d4d;
+            --bg-dark: #f5f5f5;
+            --card-bg: rgba(0, 128, 128, 0.08);
+            --text-white: #1a1a1a;
+            --text-gray: #666666;
+            --border-color: rgba(0, 128, 128, 0.2);
         }
 
         * {
@@ -25,7 +28,7 @@
 
         body {
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
             color: var(--text-white);
             display: flex;
             justify-content: center;
@@ -36,15 +39,14 @@
         }
 
         .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: white;
+            border: 2px solid var(--primary-color);
             border-radius: 24px;
             padding: 40px 30px;
             width: 100%;
             max-width: 500px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 128, 128, 0.15);
             animation: slideUp 0.5s ease-out;
         }
 
@@ -78,17 +80,19 @@
 
         .session-type {
             display: inline-block;
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(0, 128, 128, 0.15);
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
             color: var(--primary-color);
             font-weight: 600;
+            border: 1px solid var(--primary-color);
         }
 
         .session-type.break {
-            background: rgba(16, 185, 129, 0.2);
+            background: rgba(0, 102, 102, 0.15);
             color: var(--success-color);
+            border-color: var(--success-color);
         }
 
         /* دائرة التركيز */
@@ -105,7 +109,7 @@
         .timer-ring {
             width: 100%;
             height: 100%;
-            border: 6px solid rgba(255, 255, 255, 0.1);
+            border: 6px solid rgba(0, 128, 128, 0.2);
             border-top: 6px solid var(--primary-color);
             border-radius: 50%;
             position: absolute;
@@ -122,6 +126,7 @@
             letter-spacing: 2px;
             z-index: 1;
             font-family: 'Courier New', monospace;
+            color: var(--primary-color);
         }
 
         @keyframes spin {
@@ -138,9 +143,9 @@
         }
 
         select, button {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
+            background: var(--bg-color);
+            border: 2px solid var(--primary-color);
+            color: var(--text-white);
             padding: 12px;
             border-radius: 12px;
             font-family: inherit;
@@ -152,19 +157,20 @@
 
         select:hover, button:hover {
             background: var(--primary-color);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 16px rgba(0, 128, 128, 0.3);
         }
 
         select:focus, button:focus {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.2);
         }
 
         select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f8fafc' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23008080' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 10px center;
             padding-right: 30px;
@@ -181,30 +187,33 @@
         }
 
         button.start-btn {
-            background: linear-gradient(135deg, var(--primary-color), #818cf8);
+            background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+            color: white;
             font-weight: 700;
             font-size: 16px;
         }
 
         button.pause-btn {
-            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+            background: linear-gradient(135deg, #ff9800, #f59e0b);
+            color: white;
             display: none;
         }
 
         button.reset-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-color);
             font-size: 14px;
         }
 
         button.stop-btn {
-            background: var(--danger-color);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
             display: none;
         }
 
         /* الإحصائيات */
         .stats {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: rgba(0, 128, 128, 0.08);
+            border: 2px solid var(--primary-color);
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -215,7 +224,8 @@
 
         .stat-item {
             padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            background: white;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
         }
 
@@ -237,9 +247,9 @@
 
         /* تنبيهات */
         .alert {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
+            background: rgba(0, 128, 128, 0.1);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -261,8 +271,8 @@
         }
 
         .time-preset {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-color);
+            border: 2px solid rgba(0, 128, 128, 0.3);
             color: var(--text-gray);
             padding: 8px 12px;
             border-radius: 8px;
@@ -337,7 +347,7 @@
         /* عام */
         .divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--border-color);
             margin: 20px 0;
         }
 
@@ -535,7 +545,7 @@
             this.isPaused = false;
             clearInterval(this.intervalId);
             this.reset();
-            this.showAlert('تم إيقاف الجلسة');
+            this.showAlert('تم إي��اف الجلسة');
         }
 
         reset() {
